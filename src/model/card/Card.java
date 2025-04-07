@@ -61,43 +61,43 @@ public abstract class Card {
     
     
     public void act(ArrayList<Marble> marbles) throws ActionException, InvalidMarbleException {
-        // Example logic for performing actions on the selected marbles
+        
 
         if (marbles.isEmpty()) {
             throw new InvalidMarbleException("No marbles to act upon.");
         }
 
-        // Get actionable marbles from the board
+       
         ArrayList<Marble> actionableMarbles = boardManager.getActionableMarbles();
 
-        // For each marble in the passed list, check if it's actionable
+     
         for (Marble marble : marbles) {
             if (!actionableMarbles.contains(marble)) {
                 throw new InvalidMarbleException("Marble is not actionable.");
             }
 
-            // Example action: move the marble
+            
             try {
-                boardManager.moveBy(marble, 1, false);  // Move by 1 step without destroying
+                boardManager.moveBy(marble, 1, false);  
             } catch (IllegalMovementException | IllegalDestroyException e) {
-                // Throw ActionException with an anonymous subclass if the action fails
+               
                 throw new ActionException() {};
             }
 
-            // Example action: send marble to base
+            
             try {
                 boardManager.sendToBase(marble);
             } catch (CannotFieldException e) {
-                // Throw ActionException with an anonymous subclass if unable to send marble to base
+                
                 throw new ActionException() {};
             }
         }
 
-        // Attempt to discard a card after completing actions on marbles
+        
         try {
             gameManager.discardCard();
         } catch (CannotDiscardException e) {
-            // Throw ActionException with an anonymous subclass if unable to discard card
+            
             throw new ActionException("Unable to discard card after action.") {};
         }
     }
