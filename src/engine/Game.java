@@ -6,9 +6,14 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import engine.board.Board;
+import engine.board.SafeZone;
 import exception.CannotDiscardException;
 import exception.CannotFieldException;
+import exception.GameException;
 import exception.IllegalDestroyException;
+import exception.InvalidCardException;
+import exception.InvalidMarbleException;
+import exception.SplitOutOfRangeException;
 import model.Colour;
 import model.card.Card;
 import model.card.Deck;
@@ -59,41 +64,136 @@ public class Game implements GameManager {
     public ArrayList<Card> getFirePit() {
         return firePit;
     }
-
+    //Q9
 	@Override
-	public void sendHome(Marble marble) {
-		// TODO Auto-generated method stub
-		
+	public void sendHome(Marble marble){
+	    Colour ownerColour = marble.getColour();
+	    Player owner = null;
+	    for (Player player : players) {
+	        if (player.getColour() == ownerColour) {
+	            owner = player;
+	            break;
+	        }
+	    } 
+	    owner.regainMarble(marble);
 	}
-
+	
 	@Override
 	public void fieldMarble() throws CannotFieldException, IllegalDestroyException {
-		// TODO Auto-generated method stub
-		
+		Player currentPlayer = players.get(currentPlayerIndex);
+		Marble marble = currentPlayer.getOneMarble();
+		if(marble == null) throw new CannotFieldException("No Marbles Available");
+		else {
+			this.board.sendToBase(marble);
+			for(int i = 0; i<currentPlayer.getMarbles().size();i++) {
+				if(marble == currentPlayer.getMarbles().get(i)) {
+					currentPlayer.getMarbles().remove(i);
+				}
+			}
+		}
 	}
 
 	@Override
 	public void discardCard(Colour colour) throws CannotDiscardException {
-		// TODO Auto-generated method stub
+		Player p = null;
+		for(Player player: players) {
+			if(player.getColour() == colour) {
+				p = player;
+			}
+		}
 		
+		if(p.getHand().size() == 0) throw new CannotDiscardException("No cards to be thrown");
+		else {
+			int i = (int)(Math.random()*p.getHand().size());
+			p.getHand().remove(i);
+		}
 	}
 
 	@Override
 	public void discardCard() throws CannotDiscardException {
 		// TODO Auto-generated method stub
-		
+		int i = (int) (Math.random()*players.size());
+		discardCard(players.get(i).getColour());
 	}
 
 	@Override
 	public Colour getActivePlayerColour() {
-		// TODO Auto-generated method stub
-		return null;
+		return players.get(currentPlayerIndex).getColour();
 	}
 
 	@Override
 	public Colour getNextPlayerColour() {
-		// TODO Auto-generated method stub
+		return players.get((currentPlayerIndex+1)%players.size()).getColour();
+	}
+	public void selectCard(Card card) throws InvalidCardException{
+		players.get(currentPlayerIndex).selectCard(card);
+	}
+	public void selectMarble(Marble marble) throws InvalidMarbleException{
+		players.get(currentPlayerIndex).selectMarble(marble);
+	}
+	public void deselectAll() {
+		players.get(currentPlayerIndex).deselectAll();
+	}
+	public void editSplitDistance(int splitDistance) throws SplitOutOfRangeException{
+		if(splitDistance <1 || splitDistance>6)
+			throw new SplitOutOfRangeException("Split value must be between 1-6.");
+		board.setSplitDistance(splitDistance);
+	}
+	public boolean canPlayTurn() {
+		int turnIndex = turn % 4; 
+		return players.get(currentPlayerIndex).getHand().size() > turnIndex;
+	}
+	public void playPlayerTurn() throws GameException{
+		players.get(currentPlayerIndex).play();
+	}
+	public void endPlayerTurn() throws SplitOutOfRangeException {
+		//Removing the current player’s selected card from their hand and adding it to the firePit.
+		Card selectedCard = players.get(currentPlayerIndex).getSelectedCard();
+		if(selectedCard != null) {
+			firePit.add(selectedCard);
+			players.get(currentPlayerIndex).getHand().remove(selectedCard);
+		}
+		//Deselecting everything the current player has selected.
+		players.get(currentPlayerIndex).deselectAll();
+		//Moving on the next player and setting them as the current player.
+		currentPlayerIndex = (currentPlayerIndex + 1)%players.size();
+		turn++;
+		//Starting a new turn once all players have played a card and the play order is back to the the first player
+		if(turn % (4 * players.size()) == 0)
+			startNewRound();
+		//Starting a new round once 4 turns have passed by resetting the turn counter.
+		if(turn == 4) startNewRound();
+		
+		
+	}
+	//helper method for starting a new round
+	public void startNewRound() throws SplitOutOfRangeException {
+	    turn = 0;
+	    //Refilling all players’ hands from the deck when starting a new round.
+	    for (Player player : players) {
+	    	//Refilling the Deck’s card pool with the cards in the firepit and clearing it if the cards pool has fewer than 4 cards to draw.
+	        while (player.getHand().size() < 4) {
+	            if (Deck.getPoolSize() < 4 && !firePit.isEmpty()) {
+	                Deck.refillPool(firePit); 
+	                while(!firePit.isEmpty()) {
+	                	firePit.remove(0);
+	                }
+	            }
+	            ArrayList<Card> newCards = Deck.drawCards();
+	            player.getHand().addAll(newCards);
+	        }
+	    }
+	    this.editSplitDistance(-1);
+	    System.out.println("Starting a new round...");
+	}
+	// Q8 
+	public Colour checkWin(){
+		ArrayList<SafeZone> SafeZones = this.board.getSafeZones();
+		for(SafeZone safeZone: SafeZones) {
+			if(safeZone.isFull()) {
+				return safeZone.getColour();
+			}
+		}
 		return null;
 	}
-    
 }
