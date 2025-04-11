@@ -93,10 +93,10 @@ public class Board implements BoardManager {
     	return i-2;
     }
     
-    /*private ArrayList<Cell> validateSteps(Marble marble, int steps) throws IllegalMovementException{
+    private ArrayList<Cell> validateSteps(Marble marble, int steps) throws IllegalMovementException{
     	boolean onTrack = false;
     	boolean inSafe = false;
-    	
+    	ArrayList<Cell> res = new ArrayList<>();
     	
     	//searching for marble on track or safezone
     	int index=-1;
@@ -106,25 +106,70 @@ public class Board implements BoardManager {
     			break;
     		}
     	}
-    	for(SafeZone safeZone: this.safeZones) {
-    		for(Cell cell: safeZone.getCells()) {
-        		if(cell.getMarble() == marble) {
+    	if(!onTrack) {
+    		ArrayList<Cell> zone = this.getSafeZone(marble.getColour());
+    		for(index = 0; index<zone.size();index++) {
+        		if(zone.get(index).getMarble() == marble) {
         			inSafe = true;
+        			break;
         		}
         	}
     	}
+    	
+    	
     	//marble not found on track or in safe zone
     	if(!onTrack && !inSafe) {
     		throw new IllegalMovementException("Marble Cannont Be Moved");
     	}
     	else {
     		if(onTrack) {
+    			int szIndex=0;
+    			if(steps != 4 && steps!=5) {
+    				if(index + steps > this.getEntryPosition(marble.getColour())+4) {
+        				throw new IllegalMovementException("Rank of Card Played is too high");
+        			}
+    				else if(index + steps<= this.getEntryPosition(marble.getColour()) + 4) {
+        				for(int i = 1; i<=steps;i++) {
+        					if(i+index <=this.getEntryPosition(marble.getColour())) {
+        						res.add(track.get(i+index));
+        					}
+        					else {
+        						res.add(this.getSafeZone(marble.getColour()).get(szIndex++));
+        					}
+        				}
+        			}
+    			}
+    			else if(steps == 4) {
+    				for(int i = 1; i<=4;i++) {
+    					res.add(track.get(index-i));
+    				}
+    			}
+    			else if(steps == 5) {
+    				
+    				for(int i = 1;i<=5;i++) {
+    					res.add(track.get((index+i)%100));
+    				}
+    			}
     			
     		}
+    		else if(inSafe) {
+    			if(steps == 4) {
+    				throw new IllegalMovementException("Marble moving backward in Safe Zone");
+    			}
+    			else if(index + steps >= 4) {
+    				throw new IllegalMovementException("Rank of Card Played is too high");
+    			}
+    			else {
+    				for(int i = 0; i<steps;i++) {
+    					res.add(this.getSafeZone(marble.getColour()).get(index+i));
+    				}
+    			}
+    		}
     	}
+    	return res;
     	
     }
-    */
+
     @Override
     public int getSplitDistance() {
         return this.splitDistance;
