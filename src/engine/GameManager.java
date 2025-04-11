@@ -7,7 +7,7 @@ import model.Colour;
 import model.player.Marble;
 
 public interface GameManager {
-void sendHome(Marble marble);
+	void sendHome(Marble marble);
 	
 	void fieldMarble() throws CannotFieldException, IllegalDestroyException;
 	
