@@ -7,6 +7,7 @@ import model.Colour;
 public class SafeZone {
     private final Colour colour;
     private final ArrayList<Cell> cells;
+    
 
     public SafeZone(Colour colour) {
         this.colour = colour;
@@ -22,5 +23,13 @@ public class SafeZone {
     public ArrayList<Cell> getCells() {
         return this.cells;
     }
-
+  
+    public boolean isFull() {
+        for (Cell cell : cells) {
+            if (!cell.isOccupied()) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

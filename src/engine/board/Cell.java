@@ -36,5 +36,9 @@ public class Cell {
 	public void setTrap(boolean trap) {
 		this.trap = trap;
 	}
+	
+	public boolean isOccupied() {
+	    return marble != null;
+	}
 
 }
