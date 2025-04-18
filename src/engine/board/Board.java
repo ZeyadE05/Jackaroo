@@ -129,7 +129,7 @@ public class Board implements BoardManager {
         				throw new IllegalMovementException("Rank of Card Played is too high");
         			}
     				else if(index + steps<= this.getEntryPosition(marble.getColour()) + 4) {
-        				for(int i = 1; i<=steps;i++) {
+        				for(int i = 0; i<=steps;i++) {
         					if(i+index <=this.getEntryPosition(marble.getColour())) {
         						res.add(track.get(i+index));
         					}
@@ -139,14 +139,21 @@ public class Board implements BoardManager {
         				}
         			}
     			}
-    			else if(steps == 4) {
-    				for(int i = 1; i<=4;i++) {
-    					res.add(track.get(index-i));
-    				}
+    			if (steps == 4) {
+    			    for (int i = 0; i <= 4; i++) {
+    			        int newIndex = index - i;
+    			        // Handle wrapping for negative indices
+    			        while (newIndex < 0) {
+    			            newIndex += track.size();
+    			        }
+    			        // Handle wrapping for indices beyond track size
+    			        newIndex %= track.size();
+    			        res.add(track.get(newIndex));
+    			    }
     			}
-    			else if(steps == 5) {
+    			if(steps == 5) {
     				
-    				for(int i = 1;i<=5;i++) {
+    				for(int i = 0;i<=5;i++) {
     					res.add(track.get((index+i)%100));
     				}
     			}
@@ -177,10 +184,10 @@ public class Board implements BoardManager {
     	
     	for(Cell cell: fullPath) {
     		if(cell.getMarble()!= null) {
+    			marbleCount++;
     			if(cell.getCellType() == CellType.SAFE) {//Marble in safezone
     				throw new IllegalMovementException("Cannot Bypass or Land on a marble in its SafeZone");
     			}
-    			marbleCount++;
     			if( cell == track.get(this.getBasePosition(cell.getMarble().getColour()))){ //Base Cell Blockage
     				throw new IllegalMovementException("Cannot Bypass or Land on a marble in its Base Cell");
     			}
@@ -194,7 +201,7 @@ public class Board implements BoardManager {
     			}
     		}
     		
-    		else if(marbleCount>1 && !destroy) {//Path Blockage
+    		if(marbleCount>1 && !destroy) {//Path Blockage
     			throw new IllegalMovementException("Cannot Bypass or Land on a marble in its safezone");
     		}
     	}
@@ -250,8 +257,11 @@ public class Board implements BoardManager {
     	if(!onTrack1 || !onTrack2) {
     		throw new IllegalSwapException("Marbles are not available on Track");
     	}
+    	if(marble1Position == this.getBasePosition(marble_1.getColour())) {
+    		throw new IllegalSwapException("Marble 1 is in its base zone");
+    	}
     	if(marble2Position == this.getBasePosition(marble_2.getColour())) {
-    		throw new IllegalSwapException("Opponent Marble is in its base zone");
+    		throw new IllegalSwapException("Marble 2 is in its base zone");
     	}
     	
     }
