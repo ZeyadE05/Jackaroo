@@ -60,47 +60,7 @@ public abstract class Card {
     }
     
     
-    public void act(ArrayList<Marble> marbles) throws ActionException, InvalidMarbleException {
-        
-
-        if (marbles.isEmpty()) {
-            throw new InvalidMarbleException("No marbles to act upon.");
-        }
-
-       
-        ArrayList<Marble> actionableMarbles = boardManager.getActionableMarbles();
-
-     
-        for (Marble marble : marbles) {
-            if (!actionableMarbles.contains(marble)) {
-                throw new InvalidMarbleException("Marble is not actionable.");
-            }
-
-            
-            try {
-                boardManager.moveBy(marble, 1, false);  
-            } catch (IllegalMovementException | IllegalDestroyException e) {
-               
-                throw new ActionException() {};
-            }
-
-            
-            try {
-                boardManager.sendToBase(marble);
-            } catch (CannotFieldException e) {
-                
-                throw new ActionException() {};
-            }
-        }
-
-        
-        try {
-            gameManager.discardCard();
-        } catch (CannotDiscardException e) {
-            
-            throw new ActionException("Unable to discard card after action.") {};
-        }
-    }
+    public abstract void act(ArrayList<Marble> marbles) throws ActionException, InvalidMarbleException;
 
 
     
