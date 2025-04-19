@@ -16,4 +16,5 @@ public class Four  extends Standard {
 public void act(ArrayList<Marble> marbles) throws ActionException,InvalidMarbleException{
     	
     }
+
 }

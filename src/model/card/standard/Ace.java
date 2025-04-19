@@ -20,5 +20,13 @@ public class Ace extends Standard {
     		    Marble chosen = marbles.get(0);
     		    boardManager.moveBy(chosen, getRank(), false);
     }
-
+    public boolean validateMarbleSize(ArrayList<Marble> marbles) {
+    	if(marbles.size() == 1)
+    		return true;
+    	if(marbles.size() == 0)
+    		return true;
+    	return false;
+    	
+    }
+   
 }

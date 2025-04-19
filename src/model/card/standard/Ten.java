@@ -17,9 +17,11 @@ public void act(ArrayList<Marble> marbles) throws ActionException,InvalidMarbleE
     	
     }
 public boolean validateMarbleSize(ArrayList<Marble> marbles) {
-	if(marbles.size() != 1)
-		return false;
-	return true;
+	if(marbles.size() == 1)
+		return true;
+	if(marbles.size() == 0)
+		return true;
+	return false;
 	
 }
 

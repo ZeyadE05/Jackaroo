@@ -16,4 +16,16 @@ public class Five extends Standard {
 	 Marble chosen = marbles.get(0);  
 	    boardManager.moveBy(chosen, 5, false);
     }
+ public boolean validateMarbleColours(ArrayList<Marble> marbles) {
+	 
+	 int size = marbles.size();
+	 
+	 for(int i = 0 ; i<size ; i++) {
+		 for(int j = i+1 ; j<size ; j++) {
+			 if(marbles.get(i).getColour().equals(marbles.get(j).getColour()))
+				 return false;}
+	 }
+	 
+	 return true;
+	}
 }
